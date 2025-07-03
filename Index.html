@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List App</title>
+  <style>
+    body {
+      background-color: #1c1c1c;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: #2e2e2e;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px #000000;
+    }
+    h1 {
+      text-align: center;
+    }
+    .datetime {
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 14px;
+      color: #bbbbbb;
+    }
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      border: none;
+    }
+    input[type="text"], input[type="datetime-local"] {
+      width: calc(100% - 22px);
+      background-color: #3c3c3c;
+      color: #ffffff;
+      border: 1px solid #444;
+    }
+    .input-group {
+      margin-bottom: 10px;
+    }
+    button {
+      background-color: #555;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #777;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #3c3c3c;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: #999;
+    }
+    .timestamp {
+      font-size: 12px;
+      color: #bbbbbb;
+    }
+    .subtask-input {
+      width: 100%;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: row;
+    }
+    .subtask-input input {
+      flex: 1;
+      margin-right: 5px;
+    }
+    .subtasks {
+      margin-top: 5px;
+      font-size: 13px;
+      color: #ccc;
+      padding-left: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📝 TO-DO List</h1>
+    <div class="datetime" id="currentDateTime"></div>
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Enter task">
+    </div>
+    <div class="input-group">
+      <input type="datetime-local" id="taskDateTime">
+    </div>
+    <div class="input-group" style="text-align: center;">
+      <button onclick="addTask()">Add Task</button>
+    </div>
+    <h2>Pending Tasks</h2>
+    <ul id="pendingTasks"></ul>
+
+    <h2>Completed Tasks</h2>
+    <ul id="completedTasks"></ul>
+  </div>
+
+  <script>
+    function updateDateTime() {
+      const now = new Date();
+      document.getElementById('currentDateTime').innerText = `Current Date & Time: ${now.toLocaleString()}`;
+    }
+    setInterval(updateDateTime, 1000);
+    updateDateTime();
+
+    function addTask() {
+      const taskInput = document.getElementById("taskInput");
+      const taskDateTime = document.getElementById("taskDateTime");
+      const taskText = taskInput.value.trim();
+      const taskTime = taskDateTime.value;
+
+      if (!taskText || !taskTime) {
+        alert("Please enter both task and date/time.");
+        return;
+      }
+
+      const li = createTaskElement(taskText, taskTime);
+      document.getElementById("pendingTasks").appendChild(li);
+      taskInput.value = "";
+      taskDateTime.value = "";
+    }
+
+    function createTaskElement(taskText, taskTime) {
+      const li = document.createElement("li");
+      const subtasks = document.createElement("ul");
+      subtasks.className = "subtasks";
+
+      li.innerHTML = `
+        <span>${taskText}<div class="timestamp">⏰ ${taskTime}</div></span>
+        <div>
+          <button onclick="completeTask(this)">✔</button>
+          <button onclick="deleteTask(this)">🗑</button>
+          <button onclick="moveToPending(this)">↩</button>
+        </div>
+      `;
+      li.appendChild(createSubtaskInput(subtasks));
+      li.appendChild(subtasks);
+      return li;
+    }
+
+    function createSubtaskInput(subtasksList) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "subtask-input";
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = "Add subtask...";
+      const button = document.createElement("button");
+      button.textContent = "+";
+      button.onclick = function () {
+        if (input.value.trim()) {
+          const subItem = document.createElement("li");
+          subItem.textContent = "- " + input.value.trim();
+          subtasksList.appendChild(subItem);
+          input.value = "";
+        }
+      };
+      wrapper.appendChild(input);
+      wrapper.appendChild(button);
+      return wrapper;
+    }
+
+    function completeTask(button) {
+      const li = button.closest("li");
+      li.classList.add("completed");
+      document.getElementById("completedTasks").appendChild(li);
+    }
+
+    function deleteTask(button) {
+      const li = button.closest("li");
+      li.remove();
+    }
+
+    function moveToPending(button) {
+      const li = button.closest("li");
+      li.classList.remove("completed");
+      document.getElementById("pendingTasks").appendChild(li);
+    }
+  </script>
+</body>
+</html>
